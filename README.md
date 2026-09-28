@@ -159,11 +159,7 @@ scoring step in `classification/`.
 | `preprocessing_agent/` | the training-example builder |
 | `libs/` | shared code: language detection and source parsing, JSON and prompt-log helpers, model dispatch and token budgeting, driver payload normalisation, method matching, slice context, and the knowledge-base rendering used by the prompts |
 | `libs/drivers/` | one module per tool (`spoon`, `soot`, `comex`, `joern`, `heuristic`) behind a single contract, plus `joern_scripts/` with the Joern queries |
-| `classification/` | scores decision files against the labelled sinks and reports TP/FP/FN |
 | `files/` | CWE rule definitions, including `bug_rules_cwe.json` |
-| `examples/` | a C file and a one-entry manifest for a standalone run |
-| `cwe_code_paper/` | extracted buggy/fixed snippets referenced by the manifests |
-| `documentation/` | command recipes for training, testing and scoring |
 | `utils/` | standalone helper scripts, not part of the pipeline |
 
 ## Adding a tool
