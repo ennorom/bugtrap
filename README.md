@@ -13,7 +13,7 @@ verdict per candidate line.
 ```
 TRAINING
   preprocessing agent   ->  preprocessing_output.json
-  knowledge base        ->  knowledge_base_lite.json
+  knowledge base        ->  knowledge_base.json
 
 TESTING (per source file)
   sink point agent      ->  sink_point_candidates.json
@@ -108,7 +108,7 @@ the patterns and the violation criteria come from. Check what a knowledge base
 covers with:
 
 ```
-python3 -c "import json;kb=json.load(open('knowledge_base/knowledge_base_lite.json'));print(sorted(r for r,e in kb.items() if (e.get('program_patterns') or {}).get('patterns')))"
+python3 -c "import json;kb=json.load(open('knowledge_base/knowledge_base.json'));print(sorted(r for r,e in kb.items() if (e.get('program_patterns') or {}).get('patterns')))"
 ```
 
 ### A manifest of cases
@@ -121,23 +121,16 @@ For batches, a manifest is a JSON list with one entry per case:
   "snippet_abs_path": "examples/cwe190/overflow.c"}]
 ```
 
-`examples/` ships that manifest and a small C file with an integer overflow, so
-the pipeline can be exercised without any dataset:
-
-```
-python3 runner.py --manifest-dir examples --test-manifest examples/manifest.json --kb knowledge_base/knowledge_base_lite.json --model gpt-4mini --mode diff --test-only --rows 1 --decision-output output-example --output-dir examples/agent_runs
-```
-
 `bug_type` selects the rule per case and `procedure` restricts that case to one
 function; omit it to scan the whole file.
 
 For a one-off run without the runner, the four agents can be invoked directly:
 
 ```
-python3 sink_point_agent/sink_point_agent_lite.py --bug CWE-190 --file examples/cwe190/overflow.c --knowledge-base knowledge_base/knowledge_base_lite.json --model gpt-4mini --attribute-mode diff --target-method alloc_items
-python3 planner_agent/planner_agent_lite.py --input sink_point_agent/sink_point_candidates.json --output planner_agent/planner_decision.json --model gpt-4mini
-python3 internal_analysis_agent/internal_anlaysis_agent_lite.py --input planner_agent/planner_decision.json --file examples/cwe190/overflow.c --output internal_analysis_agent/internal_analysis_decision.json
-python3 decision_agent/decision_agent_lite.py --file examples/cwe190/overflow.c --input internal_analysis_agent/internal_analysis_decision.json --output decision.json --model gpt-4mini --knowledge-base knowledge_base/knowledge_base_lite.json
+python3 sink_point_agent/sink_point_agent.py --bug CWE-190 --file examples/cwe190/overflow.c --knowledge-base knowledge_base/knowledge_base.json --model gpt-4mini --attribute-mode diff --target-method alloc_items
+python3 planner_agent/planner_agent.py --input sink_point_agent/sink_point_candidates.json --output planner_agent/planner_decision.json --model gpt-4mini
+python3 internal_analysis_agent/internal_anlaysis_agent.py --input planner_agent/planner_decision.json --file examples/cwe190/overflow.c --output internal_analysis_agent/internal_analysis_decision.json
+python3 decision_agent/decision_agent.py --file examples/cwe190/overflow.c --input internal_analysis_agent/internal_analysis_decision.json --output decision.json --model gpt-4mini --knowledge-base knowledge_base/knowledge_base.json
 ```
 
 Rows are selected by 1-based position with `--start-row/--stop-row` or an explicit
@@ -155,7 +148,7 @@ scoring step in `classification/`.
 | `planner_agent/` | the planner agent |
 | `internal_analysis_agent/` | the analysis agent, `build/` with the Java driver sources, and `libs/` with their JARs |
 | `decision_agent/` | the decision agent and the per-run output directories |
-| `knowledge_base/` | the knowledge base builder and the `knowledge_base_lite*.json` files |
+| `knowledge_base/` | the knowledge base builder and the `knowledge_base*.json` files |
 | `preprocessing_agent/` | the training-example builder |
 | `libs/` | shared code: language detection and source parsing, JSON and prompt-log helpers, model dispatch and token budgeting, driver payload normalisation, method matching, slice context, and the knowledge-base rendering used by the prompts |
 | `libs/drivers/` | one module per tool (`spoon`, `soot`, `comex`, `joern`, `heuristic`) behind a single contract, plus `joern_scripts/` with the Joern queries |
