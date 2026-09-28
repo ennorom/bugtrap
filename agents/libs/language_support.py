@@ -315,7 +315,10 @@ def extract_brace_methods(lines: list[str], language: str = "unknown") -> list[d
         if not _looks_like_function_signature(signature_text, name, language):
             i = max(j + 1, start_idx + 1)
             continue
-        if "class " in signature_text or "interface " in signature_text or "enum " in signature_text or "record " in signature_text:
+        # Type declarations, not methods. `enum` and `record` are left out on
+        # purpose: they are ordinary identifiers in C, and a parameter such as
+        # `struct record *r` would otherwise discard the whole function.
+        if "class " in signature_text or "interface " in signature_text or "abstract " in signature_text:
             i = max(j + 1, start_idx + 1)
             continue
         if ";" in sig_lines[-1] and "{" not in sig_lines[-1]:
